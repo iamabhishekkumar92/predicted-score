@@ -1,0 +1,74 @@
+#import packages
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+# reading data from link
+
+url="https://raw.githubusercontent.com/AdiPersonalWorks/Random/master/student_scores%20-%20student_scores.csv"
+dataset= pd.read_csv(url)
+print("Dataset imported successfully.")
+
+dataset.shape
+dataset.head()
+dataset.describe()
+dataset.isnull()
+# plotting data on 2-D graph.
+
+dataset.plot(x='Hours', y='Scores', style='o')
+plt.title("Hours vs Percentage")
+plt.xlabel("Hours Studied")
+plt.ylabel("Percentage Score")
+plt.show()
+
+# preparing the data.
+
+x= dataset.iloc[:,:-1].values
+y= dataset.iloc[:,1].values
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
+# training the algorithm
+
+from sklearn.linear_model import LinearRegression
+regressor= LinearRegression()
+regressor.fit(x_train, y_train)
+
+print("Training complete.")
+# retrieve intercept and slope.
+
+print(regressor.intercept_)
+print(regressor.coef_)
+
+# plotting the line of regression
+
+line= regressor.coef_*x+regressor.intercept_
+
+plt.scatter(x, y)
+plt.plot(x, line)
+plt.show()
+
+# making predictions
+
+print(x_test)
+y_pred= regressor.predict(x_test)
+# comparing actual values with predicted value.
+
+df= pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+df
+# predicted score if a student studies for 9.25 hrs/ day?
+
+hours = 9.25
+test= np.array([hours])
+test= test.reshape(-1,1)
+own_pred = regressor.predict(test)
+print("No of Hours = {}".format(hours))
+print("Predicted Score = {}".format(own_pred[0]))
+
+# Evaluate
+
+from sklearn import metrics
+print("Mean Absolute Error= ", metrics.mean_absolute_error(y_test, y_pred))
+print("Mean Squared Error= ", metrics.mean_squared_error(y_test, y_pred))
+print("Root Mean Squared Error= ", np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
